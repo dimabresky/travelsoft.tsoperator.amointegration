@@ -7,8 +7,8 @@ travelsoft.tsoperator.amointegration
 
 Установка:
 
-1. Установить модуль скопировав репозиторий в папку /btrix/modules или /local/modules
-2. Запустить composer install из папки модуля для установки amocrm-api-php
+1. Установить модуль сперва скопировав репозиторий в папку /btrix/modules или /local/modules
+2. Запустить ```composer install``` из папки модуля для установки amocrm-api-php
 
 Что может:
 
