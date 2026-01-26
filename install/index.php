@@ -80,6 +80,17 @@ class travelsoft_tsoperator_amointegration extends CModule {
             if (!$DB->Query($sql, true)) {
                 throw new Exception(Loc::getMessage('TRAVELSOFT_AMO_CREATE_TABLE_ERROR') . " ts_amocrm_integration_leads");
             }
+
+            $sql = "CREATE TABLE IF NOT EXISTS ts_amocrm_integration_task_queue("
+                    . "ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,"
+                    . "TYPE VARCHAR(64) NOT NULL,"
+                    . "OBJECT_ID INT NOT NULL,"
+                    . "DATE_RUN DATETIME NOT NULL"
+                    . ")";
+
+            if (!$DB->Query($sql, true)) {
+                throw new Exception(Loc::getMessage('TRAVELSOFT_AMO_CREATE_TABLE_ERROR') . " ts_amocrm_integration_task_queue");
+            }
         } catch (Exception $ex) {
             $GLOBALS["APPLICATION"]->ThrowException($ex->getMessage());
             $this->DoUninstall();
@@ -103,6 +114,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
         );
 
         $DB->Query('DROP TABLE IF EXISTS ts_amocrm_integration_leads');
+        $DB->Query('DROP TABLE IF EXISTS ts_amocrm_integration_task_queue');
 
         ModuleManager::unRegisterModule($this->MODULE_ID);
         return true;
