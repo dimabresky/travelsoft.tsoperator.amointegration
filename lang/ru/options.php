@@ -2,6 +2,7 @@
 
 $MESS['TRAVELSOFT_AMO_CLIENT_ID'] = "Client id";
 $MESS['TRAVELSOFT_AMO_CLIENT_SECRET'] = "Client secret";
+$MESS['TRAVELSOFT_AMO_LONG_ACCESS_TOKEN'] = "Долгосрочный токен доступа";
 $MESS['TRAVELSOFT_AMO_REDIRECT_URL'] = "Redirect url";
 $MESS['TRAVELSOFT_AMO_SAVE_BTN_NAME'] = "Сохранить";
 $MESS['TRAVELSOFT_AMO_RESET_BTN_NAME'] = "Сбросить";

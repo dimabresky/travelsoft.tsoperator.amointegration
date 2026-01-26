@@ -14,6 +14,7 @@ global $APPLICATION;
 $main_options = array(
     'CLIENT_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CLIENT_ID'), 'type' => 'text'),
     'CLIENT_SECRET' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CLIENT_SECRET'), 'type' => 'text'),
+    'LONG_ACCESS_TOKEN' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_LONG_ACCESS_TOKEN'), 'type' => 'text'),
     'REDIRECT_URL' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_REDIRECT_URL'), 'type' => 'text'),
     'BASE_DOMAIN' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_BASE_DOMAIN'), 'type' => 'text'),
     'TOUR_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_TOUR_FIELD_ID'), 'type' => 'text'),
