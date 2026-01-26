@@ -19,8 +19,6 @@ use AmoCRM\Models\CustomFieldsValues\DateCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\NumericCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\DateCustomFieldValueCollection;
 use AmoCRM\Models\LeadModel;
-use League\OAuth2\Client\Token\AccessToken;
-
 class EventsHandlers {
 
     function onAfterOrderAdd($orderId) {
@@ -39,14 +37,7 @@ class EventsHandlers {
 
             $apiClient->setAccountBaseDomain($baseDomain);
 
-            $arAccessToken = (array) json_decode(Option::get('ACCESS_TOKEN'));
-
-            $apiClient->setAccessToken(new AccessToken([
-                        'access_token' => $arAccessToken['accessToken'],
-                        'refresh_token' => $arAccessToken['refreshToken'],
-                        'expires' => $arAccessToken['expires'],
-                        'baseDomain' => $arAccessToken['baseDomain'],
-            ]));
+            Utils::applyAccessToken($apiClient);
 
             $lead = new LeadModel();
 
