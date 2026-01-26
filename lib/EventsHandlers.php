@@ -121,7 +121,7 @@ class EventsHandlers {
                     'ORDER_ID' => $arOrder['ID']
                 ]);
             } catch (AmoCRMApiException $e) {
-                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/local/php_interface/logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))->write($e->getMessage());
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_logs/amointegration_' . date('d_m_y') . '.txt'))->write($e->getMessage());
             }
         }
     }
