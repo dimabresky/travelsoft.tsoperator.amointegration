@@ -85,7 +85,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
                     . "ID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,"
                     . "TYPE VARCHAR(64) NOT NULL,"
                     . "OBJECT_ID INT NOT NULL,"
-                    . "DATE_RUN DATETIME NOT NULL"
+                    . "DATE_RUN DATETIME"
                     . ")";
 
             if (!$DB->Query($sql, true)) {

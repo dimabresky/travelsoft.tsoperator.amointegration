@@ -40,9 +40,7 @@ class TaskQueueTable extends Entity\DataManager {
             new Entity\IntegerField('OBJECT_ID', array(
                 'required' => true,
             )),
-            new Entity\DatetimeField('DATE_RUN', array(
-                'required' => true,
-            )),
+            new Entity\DatetimeField('DATE_RUN'),
         );
     }
 }
