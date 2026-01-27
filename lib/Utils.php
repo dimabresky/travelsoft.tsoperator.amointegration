@@ -215,7 +215,7 @@ class Utils {
                 'NAME',
                 'PROPERTY_USER_NAME',
                 'PROPERTY_EMAIL',
-                'PROPERTY_PHONE',
+                'PROPERTY_USER_PHONE',
                 'PROPERTY_CURRENT_PAGE',
             )
         )->GetNext();
@@ -223,10 +223,10 @@ class Utils {
         if (!$element) {
             return;
         }
-
+        
         $userName = trim((string) ($element['PROPERTY_USER_NAME_VALUE'] ?? ''));
         $email = trim((string) ($element['PROPERTY_EMAIL_VALUE'] ?? ''));
-        $phone = trim((string) ($element['PROPERTY_PHONE_VALUE'] ?? ''));
+        $phone = trim((string) ($element['PROPERTY_USER_PHONE_VALUE'] ?? ''));
         $currentPage = trim((string) ($element['PROPERTY_CURRENT_PAGE_VALUE'] ?? ''));
 
         $apiClient = self::initApiClient();
@@ -251,11 +251,12 @@ class Utils {
             $contactFields->add($emailField);
         }
         if ($phone !== '') {
+            
             $phoneField = new MultitextCustomFieldValuesModel();
             $phoneField->setFieldCode('PHONE');
             $phoneField->setValues(
                 (new MultitextCustomFieldValueCollection())
-                    ->add((new MultitextCustomFieldValueModel())->setValue($phone)->setEnum('WORK'))
+                    ->add((new MultitextCustomFieldValueModel())->setValue($phone)->setEnum('WORKDD'))
             );
             $contactFields->add($phoneField);
         }
