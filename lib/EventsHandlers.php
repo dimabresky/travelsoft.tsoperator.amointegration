@@ -2,7 +2,6 @@
 
 namespace travelsoft\amocrm;
 
-use Bitrix\Main\Type\DateTime;
 use travelsoft\amocrm\tables\TaskQueueTable;
 
 class EventsHandlers {
@@ -44,7 +43,6 @@ class EventsHandlers {
         TaskQueueTable::add([
             'TYPE' => TaskQueueTable::TYPE_CALLBACK_LEAD,
             'OBJECT_ID' => $elementId,
-            'DATE_RUN' => new DateTime(),
         ]);
     }
 
