@@ -264,7 +264,7 @@ class Utils {
         }
 
         $lead = new LeadModel();
-        $leadName = $currentPage !== '' ? ('Заявка: ' . $currentPage) : 'Заявка с формы';
+        $leadName = $currentPage !== '' ? ('Нужна консультация: ' . $currentPage) : 'Заявка с формы';
         $lead->setName($leadName);
         $lead->setStatusId(Option::get('STATUS_ID'));
         $lead->setPipelineId(Option::get('PIPELINE_ID'));
