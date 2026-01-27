@@ -14,6 +14,7 @@ $MESS['TRAVELSOFT_AMO_BASE_DOMAIN'] = "Поддомен для обращени�
 $MESS['TRAVELSOFT_AMO_NOTIFY'] = "для активации кнопки необходимо мохранить параметры";
 $MESS['TRAVELSOFT_AMO_TOUR_FIELD_ID'] = "ID поля названия тура";
 $MESS['TRAVELSOFT_AMO_DATE_FIELD_ID'] = "ID поля даты тура";
+$MESS['TRAVELSOFT_AMO_DESC_FIELD_ID'] = "ID поля описания сделки";
 $MESS['TRAVELSOFT_AMO_ADULTS_FIELD_ID'] = "ID поля кол-ва взрослых";
 $MESS['TRAVELSOFT_AMO_CHILDREN_FIELD_ID'] = "ID поля кол-ва детей";
 $MESS['TRAVELSOFT_AMO_PHONE_FIELD_ID'] = "ID поля телефона";
