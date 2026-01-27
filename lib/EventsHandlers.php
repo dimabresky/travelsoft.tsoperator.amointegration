@@ -12,7 +12,7 @@ class EventsHandlers {
      * @param int $orderId
      * @return void
      */
-    function onAfterOrderAdd($orderId) {
+    static function onAfterOrderAdd($orderId) {
         TaskQueueTable::add([
             'TYPE' => TaskQueueTable::TYPE_ORDER_LEAD,
             'OBJECT_ID' => (int) $orderId,
@@ -25,7 +25,8 @@ class EventsHandlers {
      * @param array $arFields
      * @return void
      */
-    function onAfterIBlockElementAdd(&$arFields) {
+    static function onAfterIBlockElementAdd(&$arFields) {
+        
         if (empty($arFields['RESULT'])) {
             return;
         }
