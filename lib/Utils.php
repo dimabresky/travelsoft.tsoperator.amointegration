@@ -268,16 +268,16 @@ class Utils {
         $leadName = 'Нужна консультация';
         $lead->setName($leadName);
         if ($currentPage !== '') {
-            $descFieldId = (int) Option::get('DESC_FIELD_ID');
-            if ($descFieldId > 0) {
-                $descFieldValueModel = new TextCustomFieldValuesModel();
-                $descFieldValueModel->setFieldId($descFieldId);
-                $descFieldValueModel->setValues(
+            $tourLinkFieldId = (int) Option::get('TOUR_LINK_FIELD_ID');
+            if ($tourLinkFieldId > 0) {
+                $tourLinkFieldValueModel = new TextCustomFieldValuesModel();
+                $tourLinkFieldValueModel->setFieldId($tourLinkFieldId);
+                $tourLinkFieldValueModel->setValues(
                     (new TextCustomFieldValueCollection())
-                        ->add((new TextCustomFieldValueModel())->setValue("like"))
+                        ->add((new TextCustomFieldValueModel())->setValue($currentPage))
                 );
-                $leadCustomFieldsValues = new CustomFieldsValuesCollection();
-                $leadCustomFieldsValues->add($descFieldValueModel);
+                $leadCustomFieldsValues = $lead->getCustomFieldsValues() ?: new CustomFieldsValuesCollection();
+                $leadCustomFieldsValues->add($tourLinkFieldValueModel);
                 $lead->setCustomFieldsValues($leadCustomFieldsValues);
             }
         }
