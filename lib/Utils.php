@@ -182,7 +182,7 @@ class Utils {
                     'ORDER_ID' => $arOrder['ID']
                 ]);
             } catch (AmoCRMApiException $e) {
-                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_logs/amointegration_' . date('d_m_y') . '.txt'))
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y') . '.txt'))
                     ->write($e->getMessage());
             }
         }
@@ -276,7 +276,7 @@ class Utils {
         try {
             $apiClient->leads()->addOneComplex($lead);
         } catch (AmoCRMApiException $e) {
-            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_logs/amointegration_' . date('d_m_y') . '.txt'))
+            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y') . '.txt'))
                 ->write($e->getMessage());
         }
     }
