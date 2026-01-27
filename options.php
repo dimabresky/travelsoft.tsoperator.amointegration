@@ -25,6 +25,7 @@ $main_options = array(
     'CID_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CID_FIELD_ID'), 'type' => 'text'),
     'STATUS_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_STATUS_ID'), 'type' => 'text'),
     'PIPELINE_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_PIPELINE_ID'), 'type' => 'text'),
+    'CALLBACK_FORM_IBLOCK_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CALLBACK_FORM_IBLOCK_ID'), 'type' => 'text'),
 );
 $tabs = array(
     array(

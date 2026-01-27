@@ -20,4 +20,5 @@ $MESS['TRAVELSOFT_AMO_PHONE_FIELD_ID'] = "ID поля телефона";
 $MESS['TRAVELSOFT_AMO_CID_FIELD_ID'] = "ID поля CID";
 $MESS['TRAVELSOFT_AMO_STATUS_ID'] = "ID Статуса сделки по-умолчанию";
 $MESS['TRAVELSOFT_AMO_PIPELINE_ID'] = "ID Воронки сделки по-умолчанию";
+$MESS['TRAVELSOFT_AMO_CALLBACK_FORM_IBLOCK_ID'] = "ID инфоблока для сохранения заявок с формы заказа звонка/заказа тура";
 

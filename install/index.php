@@ -60,6 +60,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
             Option::set($this->MODULE_ID, 'CID_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'STATUS_ID', '');
             Option::set($this->MODULE_ID, 'PIPELINE_ID', '');
+            Option::set($this->MODULE_ID, 'CALLBACK_FORM_IBLOCK_ID', '');
 
             RegisterModuleDependences("", "TSVOUCHERSOnAfterAdd", $this->MODULE_ID, "\\travelsoft\\amocrm\\EventsHandlers", "onAfterOrderAdd");
 
