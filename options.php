@@ -19,6 +19,7 @@ $main_options = array(
     'BASE_DOMAIN' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_BASE_DOMAIN'), 'type' => 'text'),
     'TOUR_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_TOUR_FIELD_ID'), 'type' => 'text'),
     'DESC_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_DESC_FIELD_ID'), 'type' => 'text'),
+    'TOUR_LINK_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_TOUR_LINK_FIELD_ID'), 'type' => 'text'),
     'DATE_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_DATE_FIELD_ID'), 'type' => 'text'),
     'ADULTS_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_ADULTS_FIELD_ID'), 'type' => 'text'),
     'CHILDREN_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CHILDREN_FIELD_ID'), 'type' => 'text'),

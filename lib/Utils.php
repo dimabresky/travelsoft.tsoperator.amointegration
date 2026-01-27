@@ -274,9 +274,9 @@ class Utils {
                 $descFieldValueModel->setFieldId($descFieldId);
                 $descFieldValueModel->setValues(
                     (new TextCustomFieldValueCollection())
-                        ->add((new TextCustomFieldValueModel())->setValue($currentPage))
+                        ->add((new TextCustomFieldValueModel())->setValue("like"))
                 );
-                $leadCustomFieldsValues = $lead->getCustomFieldsValues() ?: new CustomFieldsValuesCollection();
+                $leadCustomFieldsValues = new CustomFieldsValuesCollection();
                 $leadCustomFieldsValues->add($descFieldValueModel);
                 $lead->setCustomFieldsValues($leadCustomFieldsValues);
             }

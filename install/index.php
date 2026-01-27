@@ -54,6 +54,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
             Option::set($this->MODULE_ID, 'LONG_ACCESS_TOKEN', '');
             Option::set($this->MODULE_ID, 'TOUR_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'DESC_FIELD_ID', '');
+            Option::set($this->MODULE_ID, 'TOUR_LINK_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'DATE_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'ADULTS_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'CHILDREN_FIELD_ID', '');
