@@ -63,6 +63,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
             Option::set($this->MODULE_ID, 'CALLBACK_FORM_IBLOCK_ID', '');
 
             RegisterModuleDependences("", "TSVOUCHERSOnAfterAdd", $this->MODULE_ID, "\\travelsoft\\amocrm\\EventsHandlers", "onAfterOrderAdd");
+            RegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", $this->MODULE_ID, "\\travelsoft\\amocrm\\EventsHandlers", "onAfterIBlockElementAdd");
 
             CopyDirFiles(
                     $_SERVER["DOCUMENT_ROOT"] . "/$this->moduleLocation/modules/" . $this->MODULE_ID . "/install/tools",
@@ -108,6 +109,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
         Option::delete($this->MODULE_ID);
 
         UnRegisterModuleDependences("", "TSVOUCHERSOnAfterAdd", $this->MODULE_ID, "\\travelsoft\\amocrm\\EventsHandlers", "onAfterOrderAdd");
+        UnRegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", $this->MODULE_ID, "\\travelsoft\\amocrm\\EventsHandlers", "onAfterIBlockElementAdd");
 
         DeleteDirFiles(
                 $_SERVER["DOCUMENT_ROOT"] . "/$this->moduleLocation/modules/" . $this->MODULE_ID . "/install/tools",
