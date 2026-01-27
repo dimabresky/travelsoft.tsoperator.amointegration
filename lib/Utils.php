@@ -4,16 +4,21 @@ namespace travelsoft\amocrm;
 
 use AmoCRM\Client\AmoCRMApiClient;
 use AmoCRM\Client\LongLivedAccessToken;
+use AmoCRM\Collections\ContactsCollection;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
 use AmoCRM\Collections\Leads\LeadsCollection;
 use AmoCRM\Exceptions\AmoCRMApiException;
+use AmoCRM\Models\ContactModel;
 use AmoCRM\Models\CustomFieldsValues\DateCustomFieldValuesModel;
+use AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\NumericCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\TextCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\DateCustomFieldValueCollection;
+use AmoCRM\Models\CustomFieldsValues\ValueCollections\MultitextCustomFieldValueCollection;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\NumericCustomFieldValueCollection;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\TextCustomFieldValueCollection;
 use AmoCRM\Models\CustomFieldsValues\ValueModels\DateCustomFieldValueModel;
+use AmoCRM\Models\CustomFieldsValues\ValueModels\MultitextCustomFieldValueModel;
 use AmoCRM\Models\CustomFieldsValues\ValueModels\NumericCustomFieldValueModel;
 use AmoCRM\Models\CustomFieldsValues\ValueModels\TextCustomFieldValueModel;
 use AmoCRM\Models\LeadModel;
@@ -28,6 +33,25 @@ use travelsoft\booking\stores\Vouchers;
  * @author dimabresky
  */
 class Utils {
+
+    /**
+     * Создаёт и настраивает клиента amoCRM.
+     *
+     * @return AmoCRMApiClient
+     */
+    private static function initApiClient(): AmoCRMApiClient {
+        $apiClient = new AmoCRMApiClient(
+            Option::get('CLIENT_ID'),
+            Option::get('CLIENT_SECRET'),
+            Option::get('REDIRECT_URL')
+        );
+
+        $baseDomain = Option::get('BASE_DOMAIN') . '.amocrm.ru';
+        $apiClient->setAccountBaseDomain($baseDomain);
+        self::applyAccessToken($apiClient);
+
+        return $apiClient;
+    }
 
     /**
      * Устанавливает токен доступа для клиента amoCRM.
@@ -67,7 +91,7 @@ class Utils {
      * @param int $orderId
      * @return void
      */
-    public static function onAfterOrderAdd($orderId): void {
+    public static function enqueueOrderLeadTask($orderId): void {
         \Bitrix\Main\Loader::includeModule('travelsoft.travelbooking');
 
         $arOrder = Vouchers::getById($orderId);
@@ -75,16 +99,7 @@ class Utils {
         if (!empty($arOrder) && $arOrder['ID']) {
             $client = Users::getById($arOrder['UF_CLIENT'], ['*', 'UF_*']);
 
-            $apiClient = new AmoCRMApiClient(
-                Option::get('CLIENT_ID'),
-                Option::get('CLIENT_SECRET'),
-                Option::get('REDIRECT_URL')
-            );
-
-            $baseDomain = Option::get('BASE_DOMAIN') . '.amocrm.ru';
-            $apiClient->setAccountBaseDomain($baseDomain);
-
-            self::applyAccessToken($apiClient);
+            $apiClient = self::initApiClient();
 
             $lead = new LeadModel();
             $book = current($arOrder['BOOKINGS']);
@@ -170,6 +185,99 @@ class Utils {
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_logs/amointegration_' . date('d_m_y') . '.txt'))
                     ->write($e->getMessage());
             }
+        }
+    }
+
+    /**
+     * Создаёт сделку и контакт в amoCRM по элементу инфоблока заявок.
+     *
+     * @param int $elementId
+     * @return void
+     */
+    public static function createLeadAndContactFromIblockElement($elementId): void {
+        if (!\Bitrix\Main\Loader::includeModule('iblock')) {
+            return;
+        }
+
+        $elementId = (int) $elementId;
+        if ($elementId <= 0) {
+            return;
+        }
+
+        $element = \CIBlockElement::GetList(
+            array(),
+            array('ID' => $elementId),
+            false,
+            false,
+            array(
+                'ID',
+                'IBLOCK_ID',
+                'NAME',
+                'PROPERTY_USER_NAME',
+                'PROPERTY_EMAIL',
+                'PROPERTY_PHONE',
+                'PROPERTY_CURRENT_PAGE',
+            )
+        )->GetNext();
+
+        if (!$element) {
+            return;
+        }
+
+        $userName = trim((string) ($element['PROPERTY_USER_NAME_VALUE'] ?? ''));
+        $email = trim((string) ($element['PROPERTY_EMAIL_VALUE'] ?? ''));
+        $phone = trim((string) ($element['PROPERTY_PHONE_VALUE'] ?? ''));
+        $currentPage = trim((string) ($element['PROPERTY_CURRENT_PAGE_VALUE'] ?? ''));
+
+        $apiClient = self::initApiClient();
+
+        $contact = new ContactModel();
+        if ($userName !== '') {
+            $contact->setName($userName);
+        } elseif ($email !== '') {
+            $contact->setName($email);
+        } elseif ($phone !== '') {
+            $contact->setName($phone);
+        }
+
+        $contactFields = new CustomFieldsValuesCollection();
+        if ($email !== '') {
+            $emailField = new MultitextCustomFieldValuesModel();
+            $emailField->setFieldCode('EMAIL');
+            $emailField->setValues(
+                (new MultitextCustomFieldValueCollection())
+                    ->add((new MultitextCustomFieldValueModel())->setValue($email)->setEnum('WORK'))
+            );
+            $contactFields->add($emailField);
+        }
+        if ($phone !== '') {
+            $phoneField = new MultitextCustomFieldValuesModel();
+            $phoneField->setFieldCode('PHONE');
+            $phoneField->setValues(
+                (new MultitextCustomFieldValueCollection())
+                    ->add((new MultitextCustomFieldValueModel())->setValue($phone)->setEnum('WORK'))
+            );
+            $contactFields->add($phoneField);
+        }
+        if ($contactFields->count() > 0) {
+            $contact->setCustomFieldsValues($contactFields);
+        }
+
+        $lead = new LeadModel();
+        $leadName = $currentPage !== '' ? ('Заявка: ' . $currentPage) : 'Заявка с формы';
+        $lead->setName($leadName);
+        $lead->setStatusId(Option::get('STATUS_ID'));
+        $lead->setPipelineId(Option::get('PIPELINE_ID'));
+
+        $contacts = new ContactsCollection();
+        $contacts->add($contact);
+        $lead->setContacts($contacts);
+
+        try {
+            $apiClient->leads()->addOneComplex($lead);
+        } catch (AmoCRMApiException $e) {
+            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_logs/amointegration_' . date('d_m_y') . '.txt'))
+                ->write($e->getMessage());
         }
     }
 }
