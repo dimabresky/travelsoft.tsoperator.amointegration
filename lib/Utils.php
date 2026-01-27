@@ -268,7 +268,18 @@ class Utils {
         $leadName = 'Нужна консультация';
         $lead->setName($leadName);
         if ($currentPage !== '') {
-            $lead->setDescription($currentPage);
+            $descFieldId = (int) Option::get('DESC_FIELD_ID');
+            if ($descFieldId > 0) {
+                $descFieldValueModel = new TextCustomFieldValuesModel();
+                $descFieldValueModel->setFieldId($descFieldId);
+                $descFieldValueModel->setValues(
+                    (new TextCustomFieldValueCollection())
+                        ->add((new TextCustomFieldValueModel())->setValue($currentPage))
+                );
+                $leadCustomFieldsValues = $lead->getCustomFieldsValues() ?: new CustomFieldsValuesCollection();
+                $leadCustomFieldsValues->add($descFieldValueModel);
+                $lead->setCustomFieldsValues($leadCustomFieldsValues);
+            }
         }
         $lead->setStatusId(Option::get('STATUS_ID'));
         $lead->setPipelineId(Option::get('PIPELINE_ID'));
