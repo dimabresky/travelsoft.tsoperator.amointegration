@@ -23,6 +23,8 @@ use AmoCRM\Models\CustomFieldsValues\ValueModels\TextCustomFieldValueModel;
 use AmoCRM\Models\LeadModel;
 use League\OAuth2\Client\Token\AccessToken;
 use travelsoft\booking\Logger;
+use travelsoft\booking\stores\Placements;
+use travelsoft\booking\stores\Rooms;
 use travelsoft\booking\stores\Users;
 use travelsoft\booking\stores\Vouchers;
 
@@ -204,6 +206,28 @@ class Utils {
                             ->add((new TextCustomFieldValueModel())->setValue($seats))
                     );
                     $leadCustomFieldsValues->add($busSeatCustomFieldValueModel);
+                }
+            }
+
+            $placementName = '';
+            if (!empty($book['UF_PLACEMENT'])) {
+                $placement = Placements::getById((int) $book['UF_PLACEMENT'], ['ID', 'NAME']);
+                $placementName = trim((string) ($placement['NAME'] ?? ''));
+            }
+            $roomName = '';
+            if (!empty($book['UF_ROOM'])) {
+                $roomName = trim((string) Rooms::nameById((int) $book['UF_ROOM']));
+            }
+            if ($placementName !== '' && $roomName !== '') {
+                $accommodationTypeFieldId = (int) Option::get('ACCOMMODATION_TYPE_FIELD_ID');
+                if ($accommodationTypeFieldId > 0) {
+                    $accommodationTypeCustomFieldValueModel = new TextCustomFieldValuesModel();
+                    $accommodationTypeCustomFieldValueModel->setFieldId($accommodationTypeFieldId);
+                    $accommodationTypeCustomFieldValueModel->setValues(
+                        (new TextCustomFieldValueCollection())
+                            ->add((new TextCustomFieldValueModel())->setValue($placementName . ':' . $roomName))
+                    );
+                    $leadCustomFieldsValues->add($accommodationTypeCustomFieldValueModel);
                 }
             }
 
