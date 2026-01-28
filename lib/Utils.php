@@ -6,7 +6,6 @@ use AmoCRM\Client\AmoCRMApiClient;
 use AmoCRM\Client\LongLivedAccessToken;
 use AmoCRM\Collections\ContactsCollection;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
-use AmoCRM\Collections\Leads\LeadsCollection;
 use AmoCRM\Exceptions\AmoCRMApiException;
 use AmoCRM\Models\ContactModel;
 use AmoCRM\Models\CustomFieldsValues\DateCustomFieldValuesModel;
@@ -104,7 +103,7 @@ class Utils {
             $lead = new LeadModel();
             $book = current($arOrder['BOOKINGS']);
 
-            $lead->setName(trim($client['FULL_NAME'] ?: $client['EMAIL']));
+            $lead->setName($book['UF_SERVICE_NAME']);
             $lead->setPrice(ceil($arOrder['SEPARATED_COSTS']['TOTAL_COST']));
             $lead->setCreatedBy(0);
             $lead->setStatusId(Option::get('STATUS_ID'));
@@ -171,11 +170,50 @@ class Utils {
 
             $lead->setCustomFieldsValues($leadCustomFieldsValues);
 
-            $leadsCollection = new LeadsCollection();
-            $leadsCollection->add($lead);
+            $clientName = trim((string) ($client['FULL_NAME'] ?? ''));
+            $clientEmail = trim((string) ($client['EMAIL'] ?? ''));
+            $clientPhone = trim((string) ($client['PERSONAL_PHONE'] ?? ''));
+
+            $hasContactData = ($clientName !== '' || $clientEmail !== '' || $clientPhone !== '');
+            if ($hasContactData) {
+                $contact = new ContactModel();
+                if ($clientName !== '') {
+                    $contact->setName($clientName);
+                } elseif ($clientEmail !== '') {
+                    $contact->setName($clientEmail);
+                }
+
+                $contactFields = new CustomFieldsValuesCollection();
+                if ($clientEmail !== '') {
+                    $emailField = new MultitextCustomFieldValuesModel();
+                    $emailField->setFieldCode('EMAIL');
+                    $emailField->setValues(
+                        (new MultitextCustomFieldValueCollection())
+                            ->add((new MultitextCustomFieldValueModel())->setValue($clientEmail)->setEnum('WORK'))
+                    );
+                    $contactFields->add($emailField);
+                }
+                if ($clientPhone !== '') {
+                    $phoneField = new MultitextCustomFieldValuesModel();
+                    $phoneField->setFieldCode('PHONE');
+                    $phoneField->setValues(
+                        (new MultitextCustomFieldValueCollection())
+                            ->add((new MultitextCustomFieldValueModel())->setValue($clientPhone)->setEnum('WORK'))
+                    );
+                    $contactFields->add($phoneField);
+                }
+                if ($contactFields->count() > 0) {
+                    $contact->setCustomFieldsValues($contactFields);
+                }
+
+                $contacts = new ContactsCollection();
+                $contacts->add($contact);
+                $lead->setContacts($contacts);
+            }
+
             $leadsService = $apiClient->leads();
             try {
-                $lead = $leadsService->addOne($lead);
+                $lead = $leadsService->addOneComplex($lead);
 
                 tables\LeadsTable::add([
                     'LEAD_ID' => $lead->getId(),
