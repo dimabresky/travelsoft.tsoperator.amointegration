@@ -114,22 +114,28 @@ class Utils {
             $leadCustomFieldsValues = new CustomFieldsValuesCollection();
 
             # tour name
-            $tourCustomFieldValueModel = new TextCustomFieldValuesModel();
-            $tourCustomFieldValueModel->setFieldId(Option::get('TOUR_FIELD_ID'));
-            $tourCustomFieldValueModel->setValues(
-                (new TextCustomFieldValueCollection())
-                    ->add((new TextCustomFieldValueModel())->setValue($book['UF_SERVICE_NAME']))
-            );
-            $leadCustomFieldsValues->add($tourCustomFieldValueModel);
+            $tourFieldId = (int) Option::get('TOUR_FIELD_ID');
+            if ($tourFieldId > 0) {
+                $tourCustomFieldValueModel = new TextCustomFieldValuesModel();
+                $tourCustomFieldValueModel->setFieldId($tourFieldId);
+                $tourCustomFieldValueModel->setValues(
+                    (new TextCustomFieldValueCollection())
+                        ->add((new TextCustomFieldValueModel())->setValue($book['UF_SERVICE_NAME']))
+                );
+                $leadCustomFieldsValues->add($tourCustomFieldValueModel);
+            }
 
             # date
-            $dateCustomFieldValueModel = new DateCustomFieldValuesModel();
-            $dateCustomFieldValueModel->setFieldId(Option::get('DATE_FIELD_ID'));
-            $dateCustomFieldValueModel->setValues(
-                (new DateCustomFieldValueCollection())
-                    ->add((new DateCustomFieldValueModel())->setValue($book['UF_DATE_FROM']->getTimestamp()))
-            );
-            $leadCustomFieldsValues->add($dateCustomFieldValueModel);
+            $dateFieldId = (int) Option::get('DATE_FIELD_ID');
+            if ($dateFieldId > 0) {
+                $dateCustomFieldValueModel = new DateCustomFieldValuesModel();
+                $dateCustomFieldValueModel->setFieldId($dateFieldId);
+                $dateCustomFieldValueModel->setValues(
+                    (new DateCustomFieldValueCollection())
+                        ->add((new DateCustomFieldValueModel())->setValue($book['UF_DATE_FROM']->getTimestamp()))
+                );
+                $leadCustomFieldsValues->add($dateCustomFieldValueModel);
+            }
 
             $dateEndValue = null;
             if (!empty($book['UF_DATE_TO'])) {
@@ -156,23 +162,29 @@ class Utils {
             }
 
             # adults
-            $adultsCustomFieldValueModel = new NumericCustomFieldValuesModel();
-            $adultsCustomFieldValueModel->setFieldId(Option::get('ADULTS_FIELD_ID'));
-            $adultsCustomFieldValueModel->setValues(
-                (new NumericCustomFieldValueCollection())
-                    ->add((new NumericCustomFieldValueModel())->setValue($book['UF_ADULTS']))
-            );
-            $leadCustomFieldsValues->add($adultsCustomFieldValueModel);
+            $adultsFieldId = (int) Option::get('ADULTS_FIELD_ID');
+            if ($adultsFieldId > 0) {
+                $adultsCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                $adultsCustomFieldValueModel->setFieldId($adultsFieldId);
+                $adultsCustomFieldValueModel->setValues(
+                    (new NumericCustomFieldValueCollection())
+                        ->add((new NumericCustomFieldValueModel())->setValue($book['UF_ADULTS']))
+                );
+                $leadCustomFieldsValues->add($adultsCustomFieldValueModel);
+            }
 
             #children
             if ($book['UF_CHILDREN']) {
-                $childrenCustomFieldValueModel = new NumericCustomFieldValuesModel();
-                $childrenCustomFieldValueModel->setFieldId(Option::get('CHILDREN_FIELD_ID'));
-                $childrenCustomFieldValueModel->setValues(
-                    (new NumericCustomFieldValueCollection())
-                        ->add((new NumericCustomFieldValueModel())->setValue($book['UF_CHIDLREN']))
-                );
-                $leadCustomFieldsValues->add($childrenCustomFieldValueModel);
+                $childrenFieldId = (int) Option::get('CHILDREN_FIELD_ID');
+                if ($childrenFieldId > 0) {
+                    $childrenCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                    $childrenCustomFieldValueModel->setFieldId($childrenFieldId);
+                    $childrenCustomFieldValueModel->setValues(
+                        (new NumericCustomFieldValueCollection())
+                            ->add((new NumericCustomFieldValueModel())->setValue($book['UF_CHIDLREN']))
+                    );
+                    $leadCustomFieldsValues->add($childrenCustomFieldValueModel);
+                }
             }
 
             $totalPeople = (int) ($book['UF_ADULTS'] ?? 0) + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0));
@@ -243,22 +255,28 @@ class Utils {
             }
 
             if ($client['PERSONAL_PHONE']) {
-                $phoneCustomFieldValueModel = new TextCustomFieldValuesModel();
-                $phoneCustomFieldValueModel->setFieldId(Option::get('PHONE_FIELD_ID'));
-                $phoneCustomFieldValueModel->setValues(
-                    (new TextCustomFieldValueCollection())
-                        ->add((new TextCustomFieldValueModel())->setValue($client['PERSONAL_PHONE']))
-                );
-                $leadCustomFieldsValues->add($phoneCustomFieldValueModel);
+                $phoneFieldId = (int) Option::get('PHONE_FIELD_ID');
+                if ($phoneFieldId > 0) {
+                    $phoneCustomFieldValueModel = new TextCustomFieldValuesModel();
+                    $phoneCustomFieldValueModel->setFieldId($phoneFieldId);
+                    $phoneCustomFieldValueModel->setValues(
+                        (new TextCustomFieldValueCollection())
+                            ->add((new TextCustomFieldValueModel())->setValue($client['PERSONAL_PHONE']))
+                    );
+                    $leadCustomFieldsValues->add($phoneCustomFieldValueModel);
+                }
             }
             if ($client['UF_CID']) {
-                $cidCustomFieldValueModel = new TextCustomFieldValuesModel();
-                $cidCustomFieldValueModel->setFieldId(Option::get('CID_FIELD_ID'));
-                $cidCustomFieldValueModel->setValues(
-                    (new TextCustomFieldValueCollection())
-                        ->add((new TextCustomFieldValueModel())->setValue($client['UF_CID']))
-                );
-                $leadCustomFieldsValues->add($cidCustomFieldValueModel);
+                $cidFieldId = (int) Option::get('CID_FIELD_ID');
+                if ($cidFieldId > 0) {
+                    $cidCustomFieldValueModel = new TextCustomFieldValuesModel();
+                    $cidCustomFieldValueModel->setFieldId($cidFieldId);
+                    $cidCustomFieldValueModel->setValues(
+                        (new TextCustomFieldValueCollection())
+                            ->add((new TextCustomFieldValueModel())->setValue($client['UF_CID']))
+                    );
+                    $leadCustomFieldsValues->add($cidCustomFieldValueModel);
+                }
             }
 
             $lead->setCustomFieldsValues($leadCustomFieldsValues);
