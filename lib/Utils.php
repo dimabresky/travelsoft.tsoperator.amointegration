@@ -129,6 +129,30 @@ class Utils {
             );
             $leadCustomFieldsValues->add($dateCustomFieldValueModel);
 
+            $dateEndValue = null;
+            if (!empty($book['UF_DATE_TO'])) {
+                if (is_object($book['UF_DATE_TO']) && method_exists($book['UF_DATE_TO'], 'getTimestamp')) {
+                    $dateEndValue = $book['UF_DATE_TO']->getTimestamp();
+                } elseif (is_string($book['UF_DATE_TO'])) {
+                    $parsedDateEnd = strtotime($book['UF_DATE_TO']);
+                    if ($parsedDateEnd !== false) {
+                        $dateEndValue = $parsedDateEnd;
+                    }
+                }
+            }
+            if ($dateEndValue !== null) {
+                $dateEndFieldId = (int) Option::get('DATE_END_FIELD_ID');
+                if ($dateEndFieldId > 0) {
+                    $dateEndCustomFieldValueModel = new DateCustomFieldValuesModel();
+                    $dateEndCustomFieldValueModel->setFieldId($dateEndFieldId);
+                    $dateEndCustomFieldValueModel->setValues(
+                        (new DateCustomFieldValueCollection())
+                            ->add((new DateCustomFieldValueModel())->setValue($dateEndValue))
+                    );
+                    $leadCustomFieldsValues->add($dateEndCustomFieldValueModel);
+                }
+            }
+
             # adults
             $adultsCustomFieldValueModel = new NumericCustomFieldValuesModel();
             $adultsCustomFieldValueModel->setFieldId(Option::get('ADULTS_FIELD_ID'));
@@ -147,6 +171,51 @@ class Utils {
                         ->add((new NumericCustomFieldValueModel())->setValue($book['UF_CHIDLREN']))
                 );
                 $leadCustomFieldsValues->add($childrenCustomFieldValueModel);
+            }
+
+            $totalPeople = (int) ($book['UF_ADULTS'] ?? 0) + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0));
+            if ($totalPeople > 0) {
+                $totalPeopleFieldId = (int) Option::get('TOTAL_PEOPLE_FIELD_ID');
+                if ($totalPeopleFieldId > 0) {
+                    $totalPeopleCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                    $totalPeopleCustomFieldValueModel->setFieldId($totalPeopleFieldId);
+                    $totalPeopleCustomFieldValueModel->setValues(
+                        (new NumericCustomFieldValueCollection())
+                            ->add((new NumericCustomFieldValueModel())->setValue($totalPeople))
+                    );
+                    $leadCustomFieldsValues->add($totalPeopleCustomFieldValueModel);
+                }
+            }
+
+            $seatsValue = $book['UF_SEATS'] ?? '';
+            if (is_array($seatsValue)) {
+                $seatsValue = array_filter(array_map('trim', $seatsValue), 'strlen');
+                $seats = implode(', ', $seatsValue);
+            } else {
+                $seats = trim((string) $seatsValue);
+            }
+            if ($seats !== '') {
+                $busSeatFieldId = (int) Option::get('BUS_SEAT_FIELD_ID');
+                if ($busSeatFieldId > 0) {
+                    $busSeatCustomFieldValueModel = new TextCustomFieldValuesModel();
+                    $busSeatCustomFieldValueModel->setFieldId($busSeatFieldId);
+                    $busSeatCustomFieldValueModel->setValues(
+                        (new TextCustomFieldValueCollection())
+                            ->add((new TextCustomFieldValueModel())->setValue($seats))
+                    );
+                    $leadCustomFieldsValues->add($busSeatCustomFieldValueModel);
+                }
+            }
+
+            $orderNumberFieldId = (int) Option::get('ORDER_NUMBER_FIELD_ID');
+            if ($orderNumberFieldId > 0) {
+                $orderNumberCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                $orderNumberCustomFieldValueModel->setFieldId($orderNumberFieldId);
+                $orderNumberCustomFieldValueModel->setValues(
+                    (new NumericCustomFieldValueCollection())
+                        ->add((new NumericCustomFieldValueModel())->setValue((int) $arOrder['ID']))
+                );
+                $leadCustomFieldsValues->add($orderNumberCustomFieldValueModel);
             }
 
             if ($client['PERSONAL_PHONE']) {
