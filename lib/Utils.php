@@ -7,6 +7,7 @@ use AmoCRM\Client\LongLivedAccessToken;
 use AmoCRM\Collections\ContactsCollection;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
 use AmoCRM\Exceptions\AmoCRMApiException;
+use AmoCRM\Exceptions\AmoCRMApiErrorResponseException;
 use AmoCRM\Models\ContactModel;
 use AmoCRM\Models\CustomFieldsValues\DateCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel;
@@ -191,11 +192,11 @@ class Utils {
             if ($totalPeople > 0) {
                 $totalPeopleFieldId = (int) Option::get('TOTAL_PEOPLE_FIELD_ID');
                 if ($totalPeopleFieldId > 0) {
-                    $totalPeopleCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                    $totalPeopleCustomFieldValueModel = new TextCustomFieldValuesModel();
                     $totalPeopleCustomFieldValueModel->setFieldId($totalPeopleFieldId);
                     $totalPeopleCustomFieldValueModel->setValues(
-                        (new NumericCustomFieldValueCollection())
-                            ->add((new NumericCustomFieldValueModel())->setValue($totalPeople))
+                        (new TextCustomFieldValueCollection())
+                            ->add((new TextCustomFieldValueModel())->setValue((string) $totalPeople))
                     );
                     $leadCustomFieldsValues->add($totalPeopleCustomFieldValueModel);
                 }
@@ -245,11 +246,11 @@ class Utils {
 
             $orderNumberFieldId = (int) Option::get('ORDER_NUMBER_FIELD_ID');
             if ($orderNumberFieldId > 0) {
-                $orderNumberCustomFieldValueModel = new NumericCustomFieldValuesModel();
+                $orderNumberCustomFieldValueModel = new TextCustomFieldValuesModel();
                 $orderNumberCustomFieldValueModel->setFieldId($orderNumberFieldId);
                 $orderNumberCustomFieldValueModel->setValues(
-                    (new NumericCustomFieldValueCollection())
-                        ->add((new NumericCustomFieldValueModel())->setValue((int) $arOrder['ID']))
+                    (new TextCustomFieldValueCollection())
+                        ->add((new TextCustomFieldValueModel())->setValue((string) $arOrder['ID']))
                 );
                 $leadCustomFieldsValues->add($orderNumberCustomFieldValueModel);
             }
@@ -330,9 +331,9 @@ class Utils {
                     'LEAD_ID' => $lead->getId(),
                     'ORDER_ID' => $arOrder['ID']
                 ]);
-            } catch (AmoCRMApiException $e) {
+            } catch (AmoCRMApiErrorResponseException $e) {
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y') . '.txt'))
-                    ->write($e->getMessage());
+                    ->write($e->getMessage() . ': ' . json_encode($e->getValidationErrors()));
             }
         }
     }

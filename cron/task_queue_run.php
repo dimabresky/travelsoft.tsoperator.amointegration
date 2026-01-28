@@ -5,7 +5,8 @@ define('NOT_CHECK_PERMISSIONS', true);
 define('BX_CRONTAB', true);
 define('NO_AGENT_CHECK', true);
 
-$_SERVER['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'] ?? realpath(__DIR__ . '/../../../..');
+$_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__ . '/../../../..');
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
 
 use Bitrix\Main\Loader;
