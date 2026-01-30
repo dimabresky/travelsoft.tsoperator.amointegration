@@ -250,7 +250,7 @@ class Utils {
                 $orderNumberCustomFieldValueModel->setFieldId($orderNumberFieldId);
                 $orderNumberCustomFieldValueModel->setValues(
                     (new TextCustomFieldValueCollection())
-                        ->add((new TextCustomFieldValueModel())->setValue((string) $arOrder['ID']))
+                        ->add((new TextCustomFieldValueModel())->setValue((string) $arOrder['UF_XML_ID']))
                 );
                 $leadCustomFieldsValues->add($orderNumberCustomFieldValueModel);
             }
