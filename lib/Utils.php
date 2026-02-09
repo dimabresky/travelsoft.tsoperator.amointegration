@@ -34,16 +34,18 @@ use travelsoft\booking\stores\Vouchers;
  *
  * @author dimabresky
  */
-class Utils {
+class Utils
+{
 
-    
+
 
     /**
      * Создаёт и настраивает клиента amoCRM.
      *
      * @return AmoCRMApiClient
      */
-    private static function initApiClient(): AmoCRMApiClient {
+    private static function initApiClient(): AmoCRMApiClient
+    {
         $apiClient = new AmoCRMApiClient(
             Option::get('CLIENT_ID'),
             Option::get('CLIENT_SECRET'),
@@ -66,7 +68,8 @@ class Utils {
      * @param AmoCRMApiClient $apiClient
      * @return void
      */
-    public static function applyAccessToken(AmoCRMApiClient $apiClient): void {
+    public static function applyAccessToken(AmoCRMApiClient $apiClient): void
+    {
         $accessTokenJson = (string) Option::get('ACCESS_TOKEN');
 
         if ($accessTokenJson !== '') {
@@ -97,7 +100,8 @@ class Utils {
      * @param string $phone Номер телефона
      * @return string Номер телефона, содержащий только цифры
      */
-    public static function normalizePhone(string $phone): string {
+    public static function normalizePhone(string $phone): string
+    {
         return preg_replace('/\D/', '', $phone);
     }
 
@@ -107,7 +111,8 @@ class Utils {
      * @param int $orderId
      * @return void
      */
-    public static function enqueueOrderLeadTask($orderId): void {
+    public static function enqueueOrderLeadTask($orderId): void
+    {
         \Bitrix\Main\Loader::includeModule('travelsoft.travelbooking');
 
         $arOrder = Vouchers::getById($orderId);
@@ -202,7 +207,11 @@ class Utils {
                 }
             }
 
-            $totalPeople = (int) ($book['UF_ADULTS'] ?? 0) + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0));
+            $totalPeople = (int) ($book['UF_ADULTS'] ?? 0) + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0))
+                + (int) ($book['UF_PENSIONER'] ?? ($book['UF_PENSIONER'] ?? 0))
+                + (int) ($book['UF_INVALID'] ?? ($book['UF_INVALID'] ?? 0))
+                + (int) ($book['UF_STUDENT'] ?? ($book['UF_STUDENT'] ?? 0));
+                + (int) ($book['UF_BENEFICIARIES'] ?? ($book['UF_BENEFICIARIES'] ?? 0));
             if ($totalPeople > 0) {
                 $totalPeopleFieldId = (int) Option::get('TOTAL_PEOPLE_FIELD_ID');
                 if ($totalPeopleFieldId > 0) {
@@ -359,7 +368,8 @@ class Utils {
      * @param int $elementId
      * @return void
      */
-    public static function createLeadAndContactFromIblockElement($elementId): void {
+    public static function createLeadAndContactFromIblockElement($elementId): void
+    {
         if (!\Bitrix\Main\Loader::includeModule('iblock')) {
             return;
         }
@@ -388,7 +398,7 @@ class Utils {
         if (!$element) {
             return;
         }
-        
+
         $userName = trim((string) ($element['PROPERTY_USER_NAME_VALUE'] ?? ''));
         $email = trim((string) ($element['PROPERTY_EMAIL_VALUE'] ?? ''));
         $phoneRaw = trim((string) ($element['PROPERTY_USER_PHONE_VALUE'] ?? ''));
