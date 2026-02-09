@@ -269,14 +269,16 @@ class Utils {
                 $leadCustomFieldsValues->add($orderNumberCustomFieldValueModel);
             }
 
-            if ($client['PERSONAL_PHONE']) {
+            $clientPhoneRaw = trim((string) ($client['PERSONAL_PHONE'] ?? ''));
+            $clientPhone = self::normalizePhone($clientPhoneRaw);
+            if ($clientPhone !== '') {
                 $phoneFieldId = (int) Option::get('PHONE_FIELD_ID');
                 if ($phoneFieldId > 0) {
                     $phoneCustomFieldValueModel = new TextCustomFieldValuesModel();
                     $phoneCustomFieldValueModel->setFieldId($phoneFieldId);
                     $phoneCustomFieldValueModel->setValues(
                         (new TextCustomFieldValueCollection())
-                            ->add((new TextCustomFieldValueModel())->setValue($client['PERSONAL_PHONE']))
+                            ->add((new TextCustomFieldValueModel())->setValue($clientPhone))
                     );
                     $leadCustomFieldsValues->add($phoneCustomFieldValueModel);
                 }
@@ -298,7 +300,6 @@ class Utils {
 
             $clientName = trim((string) ($client['FULL_NAME'] ?? ''));
             $clientEmail = trim((string) ($client['EMAIL'] ?? ''));
-            $clientPhone = trim((string) ($client['PERSONAL_PHONE'] ?? ''));
 
             $hasContactData = ($clientName !== '' || $clientEmail !== '' || $clientPhone !== '');
             if ($hasContactData) {
@@ -390,7 +391,8 @@ class Utils {
         
         $userName = trim((string) ($element['PROPERTY_USER_NAME_VALUE'] ?? ''));
         $email = trim((string) ($element['PROPERTY_EMAIL_VALUE'] ?? ''));
-        $phone = trim((string) ($element['PROPERTY_USER_PHONE_VALUE'] ?? ''));
+        $phoneRaw = trim((string) ($element['PROPERTY_USER_PHONE_VALUE'] ?? ''));
+        $phone = self::normalizePhone($phoneRaw);
         $currentPage = trim((string) ($element['PROPERTY_CURRENT_PAGE_VALUE'] ?? ''));
 
         $apiClient = self::initApiClient();
@@ -415,7 +417,6 @@ class Utils {
             $contactFields->add($emailField);
         }
         if ($phone !== '') {
-            
             $phoneField = new MultitextCustomFieldValuesModel();
             $phoneField->setFieldCode('PHONE');
             $phoneField->setValues(
