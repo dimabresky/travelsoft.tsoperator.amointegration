@@ -36,6 +36,8 @@ use travelsoft\booking\stores\Vouchers;
  */
 class Utils {
 
+    
+
     /**
      * Создаёт и настраивает клиента amoCRM.
      *
@@ -85,6 +87,18 @@ class Utils {
         if ($longAccessToken !== '') {
             $apiClient->setAccessToken(new LongLivedAccessToken($longAccessToken));
         }
+    }
+
+    /**
+     * Оставляет в номере телефона только цифры.
+     *
+     * Удаляет все символы, кроме цифр (пробелы, скобки, дефисы и т.д.).
+     *
+     * @param string $phone Номер телефона
+     * @return string Номер телефона, содержащий только цифры
+     */
+    public static function normalizePhone(string $phone): string {
+        return preg_replace('/\D/', '', $phone);
     }
 
     /**
