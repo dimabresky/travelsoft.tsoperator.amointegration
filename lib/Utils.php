@@ -118,6 +118,11 @@ class Utils
         $arOrder = Vouchers::getById($orderId);
 
         if (!empty($arOrder) && $arOrder['ID']) {
+            // Если заказ помечен как не отправлять в CRM, выходим
+            if ((int)($arOrder['UF_NOT_SEND_TO_CRM'] ?? 0) === 1) {
+                return;
+            }
+
             $client = Users::getById($arOrder['UF_CLIENT'], ['*', 'UF_*']);
 
             $apiClient = self::initApiClient();
@@ -207,10 +212,11 @@ class Utils
                 }
             }
 
-            $totalPeople = (int) ($book['UF_ADULTS'] ?? 0) + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0))
+            $totalPeople = (int) ($book['UF_ADULTS'] ?? 0)
+                + (int) ($book['UF_CHIDLREN'] ?? ($book['UF_CHILDREN'] ?? 0))
                 + (int) ($book['UF_PENSIONER'] ?? ($book['UF_PENSIONER'] ?? 0))
                 + (int) ($book['UF_INVALID'] ?? ($book['UF_INVALID'] ?? 0))
-                + (int) ($book['UF_STUDENT'] ?? ($book['UF_STUDENT'] ?? 0));
+                + (int) ($book['UF_STUDENT'] ?? ($book['UF_STUDENT'] ?? 0))
                 + (int) ($book['UF_BENEFICIARIES'] ?? ($book['UF_BENEFICIARIES'] ?? 0));
             if ($totalPeople > 0) {
                 $totalPeopleFieldId = (int) Option::get('TOTAL_PEOPLE_FIELD_ID');
