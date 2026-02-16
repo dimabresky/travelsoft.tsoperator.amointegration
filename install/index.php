@@ -65,6 +65,7 @@ class travelsoft_tsoperator_amointegration extends CModule {
             Option::set($this->MODULE_ID, 'CHILDREN_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'PHONE_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'CID_FIELD_ID', '');
+            Option::set($this->MODULE_ID, 'USER_TYPE_FIELD_ID', '');
             Option::set($this->MODULE_ID, 'STATUS_ID', '');
             Option::set($this->MODULE_ID, 'PIPELINE_ID', '');
             Option::set($this->MODULE_ID, 'CALLBACK_FORM_IBLOCK_ID', '');

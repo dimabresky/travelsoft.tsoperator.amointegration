@@ -30,6 +30,7 @@ $main_options = array(
     'CHILDREN_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CHILDREN_FIELD_ID'), 'type' => 'text'),
     'PHONE_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_PHONE_FIELD_ID'), 'type' => 'text'),
     'CID_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CID_FIELD_ID'), 'type' => 'text'),
+    'USER_TYPE_FIELD_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_USER_TYPE_FIELD_ID'), 'type' => 'text'),
     'STATUS_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_STATUS_ID'), 'type' => 'text'),
     'PIPELINE_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_PIPELINE_ID'), 'type' => 'text'),
     'CALLBACK_FORM_IBLOCK_ID' => array('desc' => Loc::getMessage('TRAVELSOFT_AMO_CALLBACK_FORM_IBLOCK_ID'), 'type' => 'text'),
