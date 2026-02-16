@@ -28,6 +28,7 @@ use travelsoft\booking\stores\Placements;
 use travelsoft\booking\stores\Rooms;
 use travelsoft\booking\stores\Users;
 use travelsoft\booking\stores\Vouchers;
+use travelsoft\booking\adapters\User;
 
 /**
  * Description of Utils
@@ -124,6 +125,8 @@ class Utils
             }
 
             $client = Users::getById($arOrder['UF_CLIENT'], ['*', 'UF_*']);
+
+            $isAgent = User::isAgentById($client['ID']);
 
             $apiClient = self::initApiClient();
 
@@ -309,6 +312,18 @@ class Utils
                     );
                     $leadCustomFieldsValues->add($cidCustomFieldValueModel);
                 }
+            }
+
+            $userTypeFieldId = (int) Option::get('USER_TYPE_FIELD_ID');
+            if ($userTypeFieldId > 0) {
+                $userTypeValue = $isAgent ? 'агент' : 'турист';
+                $userTypeCustomFieldValueModel = new TextCustomFieldValuesModel();
+                $userTypeCustomFieldValueModel->setFieldId($userTypeFieldId);
+                $userTypeCustomFieldValueModel->setValues(
+                    (new TextCustomFieldValueCollection())
+                        ->add((new TextCustomFieldValueModel())->setValue($userTypeValue))
+                );
+                $leadCustomFieldsValues->add($userTypeCustomFieldValueModel);
             }
 
             $lead->setCustomFieldsValues($leadCustomFieldsValues);
