@@ -134,7 +134,7 @@ class Utils
             $book = current($arOrder['BOOKINGS']);
 
             $lead->setName($book['UF_SERVICE_NAME']);
-            $lead->setPrice(ceil($arOrder['SEPARATED_COSTS']['TOTAL_COST']));
+            $lead->setPrice(ceil($arOrder['SEPARATED_COSTS']['TOURPRODUCT_TO_PAY']));
             $lead->setCreatedBy(0);
             $lead->setStatusId(Option::get('STATUS_ID'));
             $lead->setPipelineId(Option::get('PIPELINE_ID'));
