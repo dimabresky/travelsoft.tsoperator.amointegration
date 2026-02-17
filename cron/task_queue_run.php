@@ -23,7 +23,7 @@ if (!Loader::includeModule('travelsoft.tsoperator.amointegration')) {
     return;
 }
 
-$logPath = $_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/task_queue_' . date('d_m_y') . '.txt';
+$logPath = $_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/task_queue_' . date('d_m_y_H_i_s') . '.txt';
 $logger = new Logger($logPath);
 
 $tasks = TaskQueueTable::getList([
@@ -34,7 +34,7 @@ $tasks = TaskQueueTable::getList([
         ],
     ],
     'order' => ['ID' => 'ASC'],
-    'limit' => 50,
+    'limit' => 1,
 ])->fetchAll();
 
 foreach ($tasks as $task) {

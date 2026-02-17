@@ -372,12 +372,21 @@ class Utils
             try {
                 $lead = $leadsService->addOneComplex($lead);
 
-                tables\LeadsTable::add([
-                    'LEAD_ID' => $lead->getId(),
-                    'ORDER_ID' => $arOrder['ID']
-                ]);
+                $existingLead = tables\LeadsTable::getList([
+                    'filter' => [
+                        'LEAD_ID' => $lead->getId()
+                    ],
+                    'select' => ['ID'],
+                ])->fetch();
+
+                if (!$existingLead) {
+                    tables\LeadsTable::add([
+                        'LEAD_ID' => $lead->getId(),
+                        'ORDER_ID' => $arOrder['ID']
+                    ]);
+                }
             } catch (AmoCRMApiErrorResponseException $e) {
-                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y') . '.txt'))
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
                     ->write($e->getMessage() . ': ' . json_encode($e->getValidationErrors()));
             }
         }
@@ -487,7 +496,7 @@ class Utils
         try {
             $apiClient->leads()->addOneComplex($lead);
         } catch (AmoCRMApiException $e) {
-            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y') . '.txt'))
+            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
                 ->write($e->getMessage());
         }
     }
