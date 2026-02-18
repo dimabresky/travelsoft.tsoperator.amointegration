@@ -372,6 +372,9 @@ class Utils
             try {
                 $lead = $leadsService->addOneComplex($lead);
 
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_leads_logs/leads_' . date('d_m_y_H_i_s') . '.txt'))
+                    ->write('Lead ID: ' . $lead->getId() . ' | Order ID: ' . $arOrder['ID']);
+
                 $existingLead = tables\LeadsTable::getList([
                     'filter' => [
                         'LEAD_ID' => $lead->getId()
@@ -494,7 +497,9 @@ class Utils
         $lead->setContacts($contacts);
 
         try {
-            $apiClient->leads()->addOneComplex($lead);
+            $lead = $apiClient->leads()->addOneComplex($lead);
+            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_leads_logs/leads_' . date('d_m_y_H_i_s') . '.txt'))
+                ->write('Lead ID: ' . $lead->getId() . ' | Element ID: ' . $elementId);
         } catch (AmoCRMApiException $e) {
             (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
                 ->write($e->getMessage());
