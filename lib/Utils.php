@@ -4,10 +4,11 @@ namespace travelsoft\amocrm;
 
 use AmoCRM\Client\AmoCRMApiClient;
 use AmoCRM\Client\LongLivedAccessToken;
-use AmoCRM\Collections\ContactsCollection;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
+use AmoCRM\Collections\LinksCollection;
 use AmoCRM\Exceptions\AmoCRMApiException;
 use AmoCRM\Exceptions\AmoCRMApiErrorResponseException;
+use AmoCRM\Filters\ContactsFilter;
 use AmoCRM\Models\ContactModel;
 use AmoCRM\Models\CustomFieldsValues\DateCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel;
@@ -104,6 +105,116 @@ class Utils
     public static function normalizePhone(string $phone): string
     {
         return preg_replace('/\D/', '', $phone);
+    }
+
+    /**
+     * Ищет контакт по номеру телефона и/или email через API amoCRM.
+     * При нахождении привязывает его к сделке, при отсутствии — создаёт новый контакт и привязывает.
+     *
+     * @param AmoCRMApiClient $apiClient
+     * @param LeadModel $lead
+     * @param string $phone Нормализованный номер телефона (только цифры)
+     * @param string $contactName Имя контакта
+     * @param string $contactEmail Email контакта
+     * @return void
+     */
+    private static function findOrCreateContactAndLinkToLead(
+        AmoCRMApiClient $apiClient,
+        LeadModel $lead,
+        string $phone,
+        string $contactName,
+        string $contactEmail
+    ): void {
+        if ($phone === '' && $contactEmail === '') {
+            return;
+        }
+
+        $contact = null;
+
+        // Поиск контакта по номеру телефона через API
+        if ($phone !== '') {
+            $filter = new ContactsFilter();
+            $filter->setQuery($phone);
+
+            try {
+                $contacts = $apiClient->contacts()->get($filter);
+                if ($contacts->count() > 0) {
+                    $contact = $contacts->first();
+                }
+            } catch (AmoCRMApiException $e) {
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
+                    ->write('Contact search by phone failed: ' . $e->getMessage());
+            }
+        }
+
+        // Если не найден по телефону — поиск по email
+        if ($contact === null && $contactEmail !== '') {
+            $filter = new ContactsFilter();
+            $filter->setQuery($contactEmail);
+
+            try {
+                $contacts = $apiClient->contacts()->get($filter);
+                if ($contacts->count() > 0) {
+                    $contact = $contacts->first();
+                }
+            } catch (AmoCRMApiException $e) {
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
+                    ->write('Contact search by email failed: ' . $e->getMessage());
+            }
+        }
+
+        // Если контакт не найден — создаём новый
+        if ($contact === null) {
+            $contact = new ContactModel();
+            if ($contactName !== '') {
+                $contact->setName($contactName);
+            } elseif ($contactEmail !== '') {
+                $contact->setName($contactEmail);
+            } else {
+                $contact->setName($phone);
+            }
+
+            $contactFields = new CustomFieldsValuesCollection();
+            if ($contactEmail !== '') {
+                $emailField = new MultitextCustomFieldValuesModel();
+                $emailField->setFieldCode('EMAIL');
+                $emailField->setValues(
+                    (new MultitextCustomFieldValueCollection())
+                        ->add((new MultitextCustomFieldValueModel())->setValue($contactEmail)->setEnum('WORK'))
+                );
+                $contactFields->add($emailField);
+            }
+            if ($phone !== '') {
+                $phoneField = new MultitextCustomFieldValuesModel();
+                $phoneField->setFieldCode('PHONE');
+                $phoneField->setValues(
+                    (new MultitextCustomFieldValueCollection())
+                        ->add((new MultitextCustomFieldValueModel())->setValue($phone)->setEnum('WORK'))
+                );
+                $contactFields->add($phoneField);
+            }
+            if ($contactFields->count() > 0) {
+                $contact->setCustomFieldsValues($contactFields);
+            }
+
+            try {
+                $contact = $apiClient->contacts()->addOne($contact);
+            } catch (AmoCRMApiException $e) {
+                (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
+                    ->write('Contact creation failed: ' . $e->getMessage());
+                return;
+            }
+        }
+
+        // Привязка контакта к сделке
+        try {
+            $links = new LinksCollection();
+            $links->add($contact);
+            $apiClient->leads()->link($lead, $links);
+        } catch (AmoCRMApiException $e) {
+            (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
+                ->write('Contact link to lead failed: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -328,52 +439,20 @@ class Utils
 
             $lead->setCustomFieldsValues($leadCustomFieldsValues);
 
-            $clientName = trim((string) ($client['FULL_NAME'] ?? ''));
-            $clientEmail = trim((string) ($client['EMAIL'] ?? ''));
-
-            $hasContactData = ($clientName !== '' || $clientEmail !== '' || $clientPhone !== '');
-            if ($hasContactData) {
-                $contact = new ContactModel();
-                if ($clientName !== '') {
-                    $contact->setName($clientName);
-                } elseif ($clientEmail !== '') {
-                    $contact->setName($clientEmail);
-                }
-
-                $contactFields = new CustomFieldsValuesCollection();
-                if ($clientEmail !== '') {
-                    $emailField = new MultitextCustomFieldValuesModel();
-                    $emailField->setFieldCode('EMAIL');
-                    $emailField->setValues(
-                        (new MultitextCustomFieldValueCollection())
-                            ->add((new MultitextCustomFieldValueModel())->setValue($clientEmail)->setEnum('WORK'))
-                    );
-                    $contactFields->add($emailField);
-                }
-                if ($clientPhone !== '') {
-                    $phoneField = new MultitextCustomFieldValuesModel();
-                    $phoneField->setFieldCode('PHONE');
-                    $phoneField->setValues(
-                        (new MultitextCustomFieldValueCollection())
-                            ->add((new MultitextCustomFieldValueModel())->setValue($clientPhone)->setEnum('WORK'))
-                    );
-                    $contactFields->add($phoneField);
-                }
-                if ($contactFields->count() > 0) {
-                    $contact->setCustomFieldsValues($contactFields);
-                }
-
-                $contacts = new ContactsCollection();
-                $contacts->add($contact);
-                $lead->setContacts($contacts);
-            }
-
+            // Создаём сделку без привязки контакта, чтобы избежать контроля дублей на стороне CRM
             $leadsService = $apiClient->leads();
             try {
-                $lead = $leadsService->addOneComplex($lead);
+                $lead = $leadsService->addOne($lead);
 
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_leads_logs/leads_' . date('d_m_y_H_i_s') . '.txt'))
                     ->write('Lead ID: ' . $lead->getId() . ' | Order ID: ' . $arOrder['ID']);
+
+                // Поиск контакта по телефону/email и привязка к сделке (избегаем контроля дублей CRM)
+                $clientName = trim((string) ($client['FULL_NAME'] ?? ''));
+                $clientEmail = trim((string) ($client['EMAIL'] ?? ''));
+                if ($clientPhone !== '' || $clientEmail !== '') {
+                    self::findOrCreateContactAndLinkToLead($apiClient, $lead, $clientPhone, $clientName, $clientEmail);
+                }
 
                 $existingLead = tables\LeadsTable::getList([
                     'filter' => [
@@ -440,38 +519,6 @@ class Utils
 
         $apiClient = self::initApiClient();
 
-        $contact = new ContactModel();
-        if ($userName !== '') {
-            $contact->setName($userName);
-        } elseif ($email !== '') {
-            $contact->setName($email);
-        } elseif ($phone !== '') {
-            $contact->setName($phone);
-        }
-
-        $contactFields = new CustomFieldsValuesCollection();
-        if ($email !== '') {
-            $emailField = new MultitextCustomFieldValuesModel();
-            $emailField->setFieldCode('EMAIL');
-            $emailField->setValues(
-                (new MultitextCustomFieldValueCollection())
-                    ->add((new MultitextCustomFieldValueModel())->setValue($email)->setEnum('WORK'))
-            );
-            $contactFields->add($emailField);
-        }
-        if ($phone !== '') {
-            $phoneField = new MultitextCustomFieldValuesModel();
-            $phoneField->setFieldCode('PHONE');
-            $phoneField->setValues(
-                (new MultitextCustomFieldValueCollection())
-                    ->add((new MultitextCustomFieldValueModel())->setValue($phone)->setEnum('WORKDD'))
-            );
-            $contactFields->add($phoneField);
-        }
-        if ($contactFields->count() > 0) {
-            $contact->setCustomFieldsValues($contactFields);
-        }
-
         $lead = new LeadModel();
         $leadName = 'Нужна консультация';
         $lead->setName($leadName);
@@ -492,14 +539,16 @@ class Utils
         $lead->setStatusId(Option::get('STATUS_ID'));
         $lead->setPipelineId(Option::get('PIPELINE_ID'));
 
-        $contacts = new ContactsCollection();
-        $contacts->add($contact);
-        $lead->setContacts($contacts);
-
         try {
-            $lead = $apiClient->leads()->addOneComplex($lead);
+            // Создаём сделку без привязки контакта, чтобы избежать контроля дублей на стороне CRM
+            $lead = $apiClient->leads()->addOne($lead);
             (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_leads_logs/leads_' . date('d_m_y_H_i_s') . '.txt'))
                 ->write('Lead ID: ' . $lead->getId() . ' | Element ID: ' . $elementId);
+
+            // Поиск контакта по телефону/email и привязка к сделке (избегаем контроля дублей CRM)
+            if ($phone !== '' || $email !== '') {
+                self::findOrCreateContactAndLinkToLead($apiClient, $lead, $phone, $userName, $email);
+            }
         } catch (AmoCRMApiException $e) {
             (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
                 ->write($e->getMessage());
