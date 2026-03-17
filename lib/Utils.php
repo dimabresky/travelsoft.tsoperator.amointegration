@@ -143,7 +143,7 @@ class Utils
                 }
             } catch (AmoCRMApiException $e) {
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
-                    ->write('Contact search by phone failed: ' . $e->getMessage());
+                    ->write('Contact search by phone failed: ' . $e->getMessage() . ' Description: ' . $e->getDescription());
             }
         }
 
@@ -159,7 +159,7 @@ class Utils
                 }
             } catch (AmoCRMApiException $e) {
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
-                    ->write('Contact search by email failed: ' . $e->getMessage());
+                    ->write('Contact search by email failed: ' . $e->getMessage() . ' Description: ' . $e->getDescription());
             }
         }
 
@@ -199,9 +199,9 @@ class Utils
 
             try {
                 $contact = $apiClient->contacts()->addOne($contact);
-            } catch (AmoCRMApiException $e) {
+            } catch (AmoCRMApiErrorResponseException $e) {
                 (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
-                    ->write('Contact creation failed: ' . $e->getMessage());
+                    ->write('Contact creation failed: ' . $e->getMessage() . ' Validation errors: ' . json_encode($e->getValidationErrors()));
                 return;
             }
         }
@@ -211,9 +211,9 @@ class Utils
             $links = new LinksCollection();
             $links->add($contact);
             $apiClient->leads()->link($lead, $links);
-        } catch (AmoCRMApiException $e) {
+        } catch (AmoCRMApiErrorResponseException $e) {
             (new Logger($_SERVER['DOCUMENT_ROOT'] . '/upload/amocrm_integration_errors_logs/amointegration_' . date('d_m_y_H_i_s') . '.txt'))
-                ->write('Contact link to lead failed: ' . $e->getMessage());
+                ->write('Contact link to lead failed: ' . $e->getMessage() . ' Validation errors: ' . json_encode($e->getValidationErrors()));
         }
     }
 
