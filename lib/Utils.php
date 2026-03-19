@@ -206,6 +206,10 @@ class Utils
             }
         }
 
+        // Очистка updated_by предотвращает ошибку NotSupportedChoice при link,
+        // когда контакт был обновлён удалённым/деактивированным пользователем
+        $contact->setUpdatedBy(null);
+
         // Привязка контакта к сделке
         try {
             $links = new LinksCollection();
@@ -246,7 +250,7 @@ class Utils
 
             $lead->setName($book['UF_SERVICE_NAME']);
             $lead->setPrice(ceil($arOrder['SEPARATED_COSTS']['TOURPRODUCT_TO_PAY']));
-            $lead->setCreatedBy(0);
+            $lead->setCreatedBy(null);
             $lead->setStatusId(Option::get('STATUS_ID'));
             $lead->setPipelineId(Option::get('PIPELINE_ID'));
 
